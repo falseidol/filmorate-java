@@ -10,13 +10,15 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @SpringBootTest
 public class FilmsControllerTest {
 
     static Film film;
     static Film film2;
     static LocalDate time;
-    static FilmController filmController = new FilmController();
+    static FilmController filmController;
 
     @BeforeEach
     void init() {
@@ -28,6 +30,7 @@ public class FilmsControllerTest {
                 .releaseDate(LocalDate.of(2022, 3, 14))
                 .duration(20)
                 .build();
+        filmController = new FilmController();
     }
 
     @AfterEach
@@ -41,6 +44,7 @@ public class FilmsControllerTest {
         filmController.addFilm(film);
         Assertions.assertEquals(1, filmController.getFilms().size());
     }
+
 
     @Test
     void shouldUpdateFilmInMap() {

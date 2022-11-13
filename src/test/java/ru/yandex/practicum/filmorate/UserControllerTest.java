@@ -6,9 +6,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controllers.UserController;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 public class UserControllerTest {
@@ -47,6 +51,36 @@ public class UserControllerTest {
     void shouldAddUserToMap() {
         userController.createUser(user);
         Assertions.assertEquals(1, userController.getUsers().size());
+    }
+
+    @Test
+    void shouldCreateUserWithIdEquals1() {
+        User userFormTest = userController.createUser(user);
+        assertEquals(1, userFormTest.getId());
+    }
+
+    @Test
+    void shouldCreateUserWithEmptyName() {
+        userController.createUser(user);
+        assertEquals("test", user.getName());
+    }
+
+    @Test
+    void shouldFailValidationId() {
+        userController.createUser(user);
+        assertThrows(ValidationException.class, () -> userController.createUser(user));
+    }
+
+    @Test
+    void shouldFailUpdateMethod() {
+        userController.createUser(user);
+        User user2 = User.builder()
+                .id(5)
+                .email("mail@mail.ru")
+                .login("Masha")
+                .birthday(LocalDate.EPOCH)
+                .build();
+        assertThrows(ValidationException.class, () -> userController.updateUser(user2));
     }
 
     @Test
