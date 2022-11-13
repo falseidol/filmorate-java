@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -16,6 +15,12 @@ public class UserController {
 
     HashMap<Integer, User> users = new HashMap<>();
 
+    private int Id = 0;
+
+    private int makeID() {
+        return ++Id;
+    }
+
     @GetMapping("/users")
     public HashMap<Integer, User> getUsers() {
         log.info("Получен /GET запрос о выводе пользователей");
@@ -25,20 +30,15 @@ public class UserController {
     @PostMapping(value = "/user/create")
     public User createUser(@Valid @RequestBody User user) {
         log.info("Получен /POST запрос создание пользователя");
-        try {
-            validateName(user);
-            validateLogin(user);
-            log.info("Проверка наличия в списке");
-            if (users.containsKey(user.getId())) {
-                log.info("Такой пользователь уже существует");
-                throw new ValidationException("Такой пользователь уже существует");
-            } else {
-                users.put(user.getId(), user);
-                log.info("Пользователь с именем " + user.getName() + "создан");
-            }
-        } catch (Exception | ValidationException e) {
-            throw new RuntimeException(e);
-        }
+        log.info("Проверка наличия в списке");
+        validateExistenceForPOST(user);
+        validateName(user);
+        validateLogin(user);
+        log.info("Присвоение id");
+        user.setId(makeID());
+        User userFromCreator = userCreator(user);
+        users.put(userFromCreator.getId(), userFromCreator);
+        log.info("Пользователь с именем " + userFromCreator.getName() + "создан");
         return user;
     }
 
@@ -46,20 +46,30 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен /POST запрос обновление пользователя");
         try {
+            log.info("Проверка наличия в списке");
+            validateExistenceForPUT(user);
             validateName(user);
             validateLogin(user);
-            log.info("Проверка наличия в списке");
-            if (users.containsKey(user.getId())) {
-                users.put(user.getId(), user);
-                log.info("Пользователь обновлён");
-            } else {
-                log.info("Пользователя с таким ид не существует");
-                throw new ValidationException("Пользователя с таким ид не существует");
-            }
+            User userFromCreator = userCreator(user);
+            users.put(userFromCreator.getId(), userFromCreator);
+            log.info("Пользователь обновлён");
         } catch (ValidationException e) {
             throw new RuntimeException(e);
         }
         return user;
+    }
+
+    public User userCreator(User user) {
+        log.info("Создаем объект");
+        User userFromBuilder = User.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .login(user.getLogin())
+                .name(user.getName())
+                .birthday(user.getBirthday())
+                .build();
+        log.info("Объект User создан, имя : '{}'", userFromBuilder.getName());
+        return userFromBuilder;
     }
 
     private User validateName(User user) {
@@ -70,13 +80,26 @@ public class UserController {
         return user;
     }
 
-    @SneakyThrows
-    private User validateLogin(User user) {
+    private User validateLogin(User user) throws ValidationException {
         if (user.getLogin().contains(" ")) {
-            log.info("Пробел в поле login");
+            log.info("Пробел в поле login '{}' ", user.getLogin());
             throw new ValidationException("В поле логин не должно быть пробелов");
         }
         return user;
+    }
+
+    public void validateExistenceForPOST(User user) throws ValidationException {
+        if (users.containsKey(user.getId())) {
+            log.info("Id пользователя '{}' ", user.getId());
+            throw new ValidationException("Пользователь с таким id уже существует!");
+        }
+    }
+
+    public void validateExistenceForPUT(User user) throws ValidationException {
+        if (!users.containsKey(user.getId())) {
+            log.info("Id пользователя '{}' ", user.getId());
+            throw new ValidationException("Пользователь отсутствует!");
+        }
     }
 }
 

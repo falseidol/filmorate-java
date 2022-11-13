@@ -21,8 +21,13 @@ public class FilmsControllerTest {
     @BeforeEach
     void init() {
         time = LocalDate.of(2002, 8, 2);
-        film = new Film(1, "bebra", "bebra", time, 7777);
-        film2 = new Film(1, "test", "test", time, 7777);
+        film = Film.builder()
+                .id(1)
+                .name("bebrachast'два")
+                .description("бебру потеряли")
+                .releaseDate(LocalDate.of(2022, 3, 14))
+                .duration(20)
+                .build();
     }
 
     @AfterEach
@@ -33,8 +38,6 @@ public class FilmsControllerTest {
     @Test
     void shouldAddFilmToMap() {
         time = LocalDate.of(2002, 8, 2);
-        film = new Film(1, "bebra", "bebra", time, 7777);
-        film2 = new Film(1, "test", "test", time, 7777);
         filmController.addFilm(film);
         Assertions.assertEquals(1, filmController.getFilms().size());
     }
@@ -42,8 +45,13 @@ public class FilmsControllerTest {
     @Test
     void shouldUpdateFilmInMap() {
         time = LocalDate.of(2002, 8, 2);
-        film = new Film(1, "bebra", "bebra", time, 7777);
-        film2 = new Film(1, "test", "test", time, 7777);
+        film2 = Film.builder()
+                .id(1)
+                .name("test")
+                .description("test")
+                .releaseDate(time)
+                .duration(20)
+                .build();
         filmController.addFilm(film);
         filmController.updateFilm(film2); // they had same id
         Assertions.assertEquals("test", filmController.getFilms().get(1).getName());

@@ -16,13 +16,26 @@ public class UserControllerTest {
     static LocalDate time;
     static User user;
     static User user2;
-    static UserController userController = new UserController();
+    static UserController userController;
 
     @BeforeEach
     void init() {
-        time = LocalDate.of(2002, 8, 02);
-        user = new User(1, "test@", "test", "test", time);
-        user2 = new User(1, "test2@", "test2", "test2", time);
+        userController = new UserController();
+        time = LocalDate.of(2002, 8, 2);
+        user = User.builder()
+                .id(1)
+                .name("test")
+                .email("test@")
+                .login("test")
+                .birthday(time)
+                .build();
+        user2 = User.builder()
+                .id(1)
+                .name("test2")
+                .email("test2@")
+                .login("test2")
+                .birthday(time)
+                .build();
     }
 
     @AfterEach
