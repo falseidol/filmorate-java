@@ -12,8 +12,6 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class Film {
-    @NonNull
-    @Positive
     private int id;
     @NonNull
     @NotBlank
@@ -23,7 +21,6 @@ public class Film {
     @Size(max = 200)
     private String description;
     @NonNull
-    @NotBlank
     private LocalDate releaseDate;
     @NonNull
     @Positive

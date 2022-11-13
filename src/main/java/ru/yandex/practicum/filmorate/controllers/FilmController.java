@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
 
 @RestController
@@ -14,28 +15,28 @@ import java.util.HashMap;
 @Slf4j
 public class FilmController {
 
-    HashMap<Integer, Film> films = new HashMap<>();
+    private final HashMap<Integer, Film> films = new HashMap<>();
     private int id = 0;
 
     private int makeID() {
         return ++id;
     }
 
-    @GetMapping("/films")
-    public HashMap<Integer, Film> getFilms() {
+    @GetMapping
+    public Collection<Film> getFilms() {
         log.info("Получен /GET запрос о выводе фильмов");
-        return films;
+        return films.values();
     }
 
-    @PostMapping(value = "/film/add")
+    @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         log.info("Получен /POST запрос добавление фильма");
-        log.info("Проверка даты фильма");
-        releaseDateShouldBeAfter28Dec1895Year(film);
         log.info("Проверка наличия в списке");
         validateExistenceForPOST(film);
         log.info("Проверка описания");
         validateDescription(film);
+        log.info("Проверка даты фильма");
+        releaseDateShouldBeAfter28Dec1895Year(film);
         log.info("Присваиваем id");
         film.setId(makeID());
         Film filmFromCreator = filmCreator(film);
@@ -56,15 +57,15 @@ public class FilmController {
         return filmFromBuilder;
     }
 
-    @PutMapping(value = "/film/update")
+    @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("Получен /PUT запрос обновление фильма");
         log.info("Проверка наличия в списке");
         validateExistenceForPUT(film);
-        log.info("Проверка даты фильма");
-        releaseDateShouldBeAfter28Dec1895Year(film);
         log.info("Проверка описания");
         validateDescription(film);
+        log.info("Проверка даты фильма");
+        releaseDateShouldBeAfter28Dec1895Year(film);
         Film filmFromCreator = filmCreator(film);
         films.put(filmFromCreator.getId(), filmFromCreator);
         log.info("Фильм с названием " + filmFromCreator.getName() + " обновлен");

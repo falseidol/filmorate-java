@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,11 +39,6 @@ public class UserControllerTest {
                 .login("test2")
                 .birthday(time)
                 .build();
-    }
-
-    @AfterEach
-    void cleaner() {
-        userController.getUsers().clear();
     }
 
     @Test

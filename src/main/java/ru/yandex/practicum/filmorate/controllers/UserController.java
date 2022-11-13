@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.HashMap;
 
 @RestController
@@ -21,13 +22,13 @@ public class UserController {
         return ++Id;
     }
 
-    @GetMapping("/users")
-    public HashMap<Integer, User> getUsers() {
+    @GetMapping
+    public Collection<User> getUsers() {
         log.info("Получен /GET запрос о выводе пользователей");
-        return users;
+        return users.values();
     }
 
-    @PostMapping(value = "/user/create")
+    @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("Получен /POST запрос создание пользователя");
         log.info("Проверка наличия в списке");
@@ -42,20 +43,16 @@ public class UserController {
         return user;
     }
 
-    @PutMapping(value = "/user/update")
+    @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен /POST запрос обновление пользователя");
-        try {
-            log.info("Проверка наличия в списке");
-            validateExistenceForPUT(user);
-            validateName(user);
-            validateLogin(user);
-            User userFromCreator = userCreator(user);
-            users.put(userFromCreator.getId(), userFromCreator);
-            log.info("Пользователь обновлён");
-        } catch (ValidationException e) {
-            throw new RuntimeException(e);
-        }
+        log.info("Проверка наличия в списке");
+        validateExistenceForPUT(user);
+        validateLogin(user);
+        validateName(user);
+        User userFromCreator = userCreator(user);
+        users.put(userFromCreator.getId(), userFromCreator);
+        log.info("Пользователь обновлён");
         return user;
     }
 
