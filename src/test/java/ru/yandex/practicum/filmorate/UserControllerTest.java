@@ -72,18 +72,6 @@ public class UserControllerTest {
     }
 
     @Test
-    void shouldFailUpdateMethod() {
-        userController.createUser(user);
-        User user2 = User.builder()
-                .id(5)
-                .email("mail@mail.ru")
-                .login("Masha")
-                .birthday(LocalDate.EPOCH)
-                .build();
-        assertThrows(ValidationException.class, () -> userController.updateUser(user2));
-    }
-
-    @Test
     void shouldUpdateUserInMap() {
         userController.createUser(user);
         userController.updateUser(user2);
