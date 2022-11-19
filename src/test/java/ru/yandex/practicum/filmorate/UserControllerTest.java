@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controllers.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
 
@@ -16,14 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class UserControllerTest {
 
-    static LocalDate time;
-    static User user;
-    static User user2;
-    static UserController userController;
+   private static LocalDate time;
+    private static User user;
+    private static User user2;
+    private static UserService userService;
 
     @BeforeEach
     void init() {
-        userController = new UserController();
+        userService = new UserService();
         time = LocalDate.of(2002, 8, 2);
         user = User.builder()
                 .id(1)
@@ -43,32 +43,32 @@ public class UserControllerTest {
 
     @Test
     void shouldAddUserToMap() {
-        userController.createUser(user);
-        Assertions.assertEquals(1, userController.getUsers().size());
+        userService.createUser(user);
+        Assertions.assertEquals(1, userService.getUsers().size());
     }
 
     @Test
     void shouldCreateUserWithIdEquals1() {
-        User userFormTest = userController.createUser(user);
+        User userFormTest = userService.createUser(user);
         assertEquals(1, userFormTest.getId());
     }
 
     @Test
     void shouldCreateUserWithEmptyName() {
-        userController.createUser(user);
+        userService.createUser(user);
         assertEquals("test", user.getName());
     }
 
     @Test
     void shouldFailValidationId() {
-        userController.createUser(user);
-        assertThrows(ValidationException.class, () -> userController.createUser(user));
+        userService.createUser(user);
+        assertThrows(ValidationException.class, () -> userService.createUser(user));
     }
 
     @Test
     void shouldUpdateUserInMap() {
-        userController.createUser(user);
-        userController.updateUser(user2);
+        userService.createUser(user);
+        userService.updateUser(user2);
         Assertions.assertEquals("test2@", user2.getEmail());
         Assertions.assertEquals("test2", user2.getLogin());
         Assertions.assertEquals("test2", user2.getName());

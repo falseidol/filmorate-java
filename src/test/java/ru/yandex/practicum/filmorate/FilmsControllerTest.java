@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
 
@@ -14,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 public class FilmsControllerTest {
 
-    static Film film;
-    static Film film2;
-    static LocalDate time;
-    static FilmController filmController;
+   private static Film film;
+    private static Film film2;
+    private static LocalDate time;
+    private static FilmService filmService;
 
     @BeforeEach
     void init() {
@@ -29,14 +30,14 @@ public class FilmsControllerTest {
                 .releaseDate(LocalDate.of(2022, 3, 14))
                 .duration(20)
                 .build();
-        filmController = new FilmController();
+        filmService = new FilmService();
     }
 
     @Test
     void shouldAddFilmToMap() {
         time = LocalDate.of(2002, 8, 2);
-        filmController.addFilm(film);
-        Assertions.assertEquals(1, filmController.getFilms().size());
+        filmService.addFilm(film);
+        Assertions.assertEquals(1, filmService.getFilms().size());
     }
 
 
@@ -50,8 +51,8 @@ public class FilmsControllerTest {
                 .releaseDate(time)
                 .duration(20)
                 .build();
-        filmController.addFilm(film);
-        filmController.updateFilm(film2);
-        assertEquals(1,filmController.getFilms().size());
+        filmService.addFilm(film);
+        filmService.updateFilm(film2);
+        assertEquals(1,filmService.getFilms().size());
     }
 }
