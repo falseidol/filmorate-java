@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Past;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
@@ -21,9 +19,10 @@ public class User {
     private String email;
     @NonNull
     @NotBlank
+    @Pattern(regexp = "\\S+", message = "Логин содержит пробелы")
     private String login;
     private String name;
     @NonNull
-    @Past
+    @PastOrPresent(message = "Некорректная дата рождения")
     private LocalDate birthday;
 }
