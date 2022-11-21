@@ -26,7 +26,6 @@ public class FilmService {
     public Film addFilm(Film film) {
         log.info("Проверка наличия в списке");
         validateExistenceForPOST(film);
-        log.info("Проверка описания");
         log.info("Присваиваем id");
         film.setId(makeID());
         Film filmFromCreator = filmCreator(film);
@@ -50,8 +49,6 @@ public class FilmService {
     public Film updateFilm(Film film) {
         log.info("Проверка наличия в списке");
         validateExistenceForPUT(film);
-        log.info("Проверка описания");
-        log.info("Проверка даты фильма");
         Film filmFromCreator = filmCreator(film);
         films.put(filmFromCreator.getId(), filmFromCreator);
         log.info("Фильм с названием " + filmFromCreator.getName() + " обновлен");
