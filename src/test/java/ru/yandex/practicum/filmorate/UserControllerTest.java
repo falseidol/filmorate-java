@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class UserControllerTest {
 
-   private static LocalDate time;
+    private static LocalDate time;
     private static User user;
     private static User user2;
     private static UserService userService;
@@ -72,5 +72,29 @@ public class UserControllerTest {
         Assertions.assertEquals("test2@", user2.getEmail());
         Assertions.assertEquals("test2", user2.getLogin());
         Assertions.assertEquals("test2", user2.getName());
+    }
+
+    @Test
+    void validateNameTest() {
+        user = User.builder()
+                .id(1)
+                .name("")
+                .email("test@")
+                .login("testlogin")
+                .birthday(time)
+                .build();
+        userService.createUser(user);
+        assertEquals("testlogin", user.getName());
+    }
+
+    @Test
+    void validateExistenceForPOSTTest() {
+        userService.createUser(user);
+        assertThrows(ValidationException.class, () -> userService.createUser(user));
+    }
+
+    @Test
+    void validateExistenceForPUTTest() {
+        assertThrows(ValidationException.class, () -> userService.updateUser(user));
     }
 }

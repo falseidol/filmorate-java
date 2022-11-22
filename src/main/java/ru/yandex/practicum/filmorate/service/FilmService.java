@@ -55,14 +55,14 @@ public class FilmService {
         return film;
     }
 
-    private void validateExistenceForPOST(Film film) {
+    public void validateExistenceForPOST(Film film) {
         if (films.containsKey(film.getId())) {
             log.info("Id фильма '{}' ", film.getId());
             throw new ValidationException("Фильм с таким id уже существует!");
         }
     }
 
-    private void validateExistenceForPUT(Film film) throws ValidationException {
+    public void validateExistenceForPUT(Film film) throws ValidationException {
         if (!films.containsKey(film.getId())) {
             log.info("Id фильма '{}' ", film.getId());
             throw new ValidationException("Фильм с таким id осутствует!");

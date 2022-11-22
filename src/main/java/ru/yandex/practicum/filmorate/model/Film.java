@@ -28,7 +28,6 @@ public class Film {
     @NonNull
     @BeginOfCinemaEra
     private LocalDate releaseDate;
-    @NonNull
     @Positive
     private int duration;
 }
