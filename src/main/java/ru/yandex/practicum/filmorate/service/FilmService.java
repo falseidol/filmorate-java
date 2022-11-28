@@ -1,71 +1,52 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class FilmService {
+    private final FilmStorage filmStorage;
 
-    private final HashMap<Integer, Film> films = new HashMap<>();
-    private int id = 0;
-
-    private int makeID() {
-        return ++id;
+    @Autowired
+    public FilmService(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
-    public Collection<Film> getFilms() {
-        return films.values();
-    }
-
-    public Film addFilm(Film film) {
-        log.info("Проверка наличия в списке");
-        validateExistenceForPOST(film);
-        log.info("Присваиваем id");
-        film.setId(makeID());
-        Film filmFromCreator = filmCreator(film);
-        films.put(filmFromCreator.getId(), filmFromCreator);
-        log.info("Фильм с названием " + filmFromCreator.getName() + " добавлен");
-        return film;
-    }
-
-    private Film filmCreator(Film film) {
-        Film filmFromBuilder = Film.builder()
-                .id(film.getId())
-                .name(film.getName())
-                .description(film.getDescription())
-                .releaseDate(film.getReleaseDate())
-                .duration(film.getDuration())
-                .build();
-        log.info("Объект Film создан '{}'", filmFromBuilder.getName());
-        return filmFromBuilder;
-    }
-
-    public Film updateFilm(Film film) {
-        log.info("Проверка наличия в списке");
-        validateExistenceForPUT(film);
-        Film filmFromCreator = filmCreator(film);
-        films.put(filmFromCreator.getId(), filmFromCreator);
-        log.info("Фильм с названием " + filmFromCreator.getName() + " обновлен");
-        return film;
-    }
-
-    public void validateExistenceForPOST(Film film) {
-        if (films.containsKey(film.getId())) {
-            log.info("Id фильма '{}' ", film.getId());
-            throw new ValidationException("Фильм с таким id уже существует!");
+    public Film putLike(int filmId, int userId) {
+        if (!filmStorage.getFilms().containsKey(filmId)) {
+            throw new ObjectNotFoundException("Фильма с таким ид не существует.");
         }
+        filmStorage.getFilmById(filmId).getLikes().add(userId);
+        log.info("Лайк добавлен.");
+        return filmStorage.getFilmById(filmId);
     }
 
-    public void validateExistenceForPUT(Film film) throws ValidationException {
-        if (!films.containsKey(film.getId())) {
-            log.info("Id фильма '{}' ", film.getId());
-            throw new ValidationException("Фильм с таким id осутствует!");
+    public Film deleteLike(int filmId, int userId) {
+        if (!filmStorage.getFilms().containsKey(filmId)) {
+            throw new ObjectNotFoundException("Фильма с таким ид не существует.");
         }
+        if (!filmStorage.getFilmById(filmId).getLikes().contains(userId)) {
+            throw new ObjectNotFoundException("Лайк отсуствует.");
+        }
+        filmStorage.getFilmById(filmId).getLikes().remove(userId);
+        log.info("Лайк удален.");
+        return filmStorage.getFilmById(filmId);
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        log.info("Список популярных фильмов отправлен");
+
+        return filmStorage.findAll().stream()
+                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

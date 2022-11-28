@@ -2,15 +2,17 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
 
     private final HashMap<Integer, Film> films = new HashMap<>();
     private int id = 0;
@@ -19,9 +21,6 @@ public class InMemoryFilmStorage implements FilmStorage{
         return ++id;
     }
 
-    public Collection<Film> getFilms() {
-        return films.values();
-    }
 
     public Film addFilm(Film film) {
         log.info("Проверка наличия в списке");
@@ -32,6 +31,11 @@ public class InMemoryFilmStorage implements FilmStorage{
         films.put(filmFromCreator.getId(), filmFromCreator);
         log.info("Фильм с названием " + filmFromCreator.getName() + " добавлен");
         return film;
+    }
+
+    @Override
+    public Collection<Film> findAll() {
+        return films.values();
     }
 
     private Film filmCreator(Film film) {
@@ -56,9 +60,30 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film bebra() {
-        return null;
+    public Film getFilmById(int id) {
+        if (!films.containsKey(id)) {
+            throw new ObjectNotFoundException("Фильма с таким ид не существует.");
+        }
+        log.info("Выводим фильм.");
+        return films.get(id);
     }
+
+    @Override
+    public Film deleteById(int id) {
+        if (!films.containsKey(id)) {
+            throw new ObjectNotFoundException("Фильма с таким ид не существует.");
+        }
+        Film film = films.get(id);
+        films.remove(id);
+        log.info("Фильм с ид" + id + " удалён.");
+        return film;
+    }
+
+    @Override
+    public Map<Integer, Film> getFilms() {
+        return films;
+    }
+
 
     public void validateExistenceForPOST(Film film) {
         if (films.containsKey(film.getId())) {
@@ -67,10 +92,10 @@ public class InMemoryFilmStorage implements FilmStorage{
         }
     }
 
-    public void validateExistenceForPUT(Film film) throws ValidationException {
+    public void validateExistenceForPUT(Film film) {
         if (!films.containsKey(film.getId())) {
             log.info("Id фильма '{}' ", film.getId());
-            throw new ValidationException("Фильм с таким id осутствует!");
+            throw new ObjectNotFoundException("Фильм с таким id осутствует!");
         }
     }
 }

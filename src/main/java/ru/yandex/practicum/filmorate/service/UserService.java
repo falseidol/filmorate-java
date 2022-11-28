@@ -1,83 +1,75 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.InternalException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
 
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final UserStorage userStorage;
 
-    private int Id = 0;
-
-    private int makeID() {
-        return ++Id;
+    @Autowired
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
-    public Collection<User> getUsers() {
-        return users.values();
-    }
-
-
-    public User createUser(User user) {
-        log.info("Проверка наличия в списке");
-        validateExistenceForPOST(user);
-        validateName(user);
-        log.info("Присвоение id");
-        user.setId(makeID());
-        User userFromCreator = userCreator(user);
-        users.put(userFromCreator.getId(), userFromCreator);
-        log.info("Пользователь с именем " + userFromCreator.getName() + "создан");
-        return user;
-    }
-
-    public User updateUser(User user) {
-        log.info("Проверка наличия в списке");
-        validateExistenceForPUT(user);
-        validateName(user);
-        User userFromCreator = userCreator(user);
-        users.put(userFromCreator.getId(), userFromCreator);
-        log.info("Пользователь обновлён");
-        return user;
-    }
-
-    private User userCreator(User user) {
-        log.info("Создаем объект");
-        User userFromBuilder = User.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .login(user.getLogin())
-                .name(user.getName())
-                .birthday(user.getBirthday())
-                .build();
-        log.info("Объект User создан, имя : '{}'", userFromBuilder.getName());
-        return userFromBuilder;
-    }
-
-    private void validateName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Присваиваем поле login '{}' для поля name '{}' ", user.getLogin(), user.getName());
-            user.setName(user.getLogin());
+    public List<User> addFriend(int firstId, int secondId) {
+        if (!userStorage.getUsersMap().containsKey(firstId) || !userStorage.getUsersMap().containsKey(secondId)) {
+            throw new ObjectNotFoundException(String.format("Пользователя с id %d или %d не существует", firstId, secondId));
         }
+        if (userStorage.getById(firstId).getFriends().contains(secondId)) {
+            throw new InternalException("Пользователи уже являются друзьями");
+        }
+        userStorage.getById(firstId).getFriends().add(secondId);
+        userStorage.getById(secondId).getFriends().add(firstId);
+        log.info("Пользователи " + userStorage.getById(firstId).getName() + " и " + userStorage.getById(secondId).getName() + " теперь друзья.");
+        return Arrays.asList(userStorage.getById(firstId), userStorage.getById(secondId));
     }
 
-    private void validateExistenceForPOST(User user) throws ValidationException {
-        if (users.containsKey(user.getId())) {
-            log.info("Id пользователя '{}' ", user.getId());
-            throw new ValidationException("Пользователь с таким id уже существует!");
+    public List<User> removeFriend(int firstId, int secondId) {
+        if (!userStorage.getUsersMap().containsKey(firstId) || !userStorage.getUsersMap().containsKey(secondId)) {
+            throw new ObjectNotFoundException("Пользователя с ид " + firstId + " не существует.");
         }
+        if (!userStorage.getById(firstId).getFriends().contains(secondId)) {
+            throw new InternalException("Пользователи не являются друзьями.");
+        }
+        userStorage.getById(firstId).getFriends().remove(secondId);
+        userStorage.getById(secondId).getFriends().remove(firstId);
+        log.info("Пользователи " + userStorage.getById(firstId).getName() + " и " + userStorage.getById(secondId).getName() + " больше не дружочки пирожочки.");
+        return Arrays.asList(userStorage.getById(firstId), userStorage.getById(secondId));
     }
 
-    private void validateExistenceForPUT(User user) throws ValidationException {
-        if (!users.containsKey(user.getId())) {
-            log.info("Id пользователя '{}' ", user.getId());
-            throw new ValidationException("Пользователь отсутствует!");
+    public List<User> getUsersFriendListById(int firstId) {
+        if (userStorage.getUsersMap().isEmpty()) {
+            throw new InternalException("У юзера нету дружочков пирожочков.");
+        } else if (!userStorage.getUsersMap().containsKey(firstId)) {
+            throw new ObjectNotFoundException("Пользователя с таким ид не существует." + firstId);
         }
+        log.info("Выводим список друзей юзера.");
+        return userStorage.getById(firstId).getFriends().stream().map(userStorage::getById).collect(Collectors.toList());
+    }
+
+    public List<User> getSharedFriendsList(int firstId, int secondId) {
+        if (!userStorage.getUsersMap().containsKey(firstId) || !userStorage.getUsersMap().containsKey(secondId)) {
+            throw new ObjectNotFoundException("Пользователи не найдены");
+        }
+        User user = userStorage.getById(firstId);
+        User otherUser = userStorage.getById(secondId);
+        log.info("Список общих друзей {} и {} отправлен", user.getName(), otherUser.getName());
+
+        return user.getFriends().stream()
+                .filter(friendId -> otherUser.getFriends().contains(friendId))
+                .map(userStorage::getById)
+                .collect(Collectors.toList());
     }
 }

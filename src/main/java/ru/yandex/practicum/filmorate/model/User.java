@@ -7,11 +7,14 @@ import lombok.NonNull;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class User {
+    private Set<Integer> friends = new HashSet<>();
     private int id;
     @NonNull
     @NotBlank

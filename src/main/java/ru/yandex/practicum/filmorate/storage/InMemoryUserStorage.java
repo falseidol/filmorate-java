@@ -2,15 +2,17 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @Slf4j
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Integer, User> users = new HashMap<>();
 
@@ -20,11 +22,7 @@ public class InMemoryUserStorage implements UserStorage{
         return ++Id;
     }
 
-    public Collection<User> getUsers() {
-        return users.values();
-    }
-
-
+    @Override
     public User createUser(User user) {
         log.info("Проверка наличия в списке");
         validateExistenceForPOST(user);
@@ -37,6 +35,12 @@ public class InMemoryUserStorage implements UserStorage{
         return user;
     }
 
+    @Override
+    public Collection<User> findAll() {
+        return users.values();
+    }
+
+    @Override
     public User updateUser(User user) {
         log.info("Проверка наличия в списке");
         validateExistenceForPUT(user);
@@ -45,6 +49,31 @@ public class InMemoryUserStorage implements UserStorage{
         users.put(userFromCreator.getId(), userFromCreator);
         log.info("Пользователь обновлён");
         return user;
+    }
+
+    @Override
+    public User getById(int id) {
+        if (!users.containsKey(id)) {
+            throw new ObjectNotFoundException("Пользователя с таким ид не существует.");
+        }
+        log.info("Выводим пользователя с ид :" + id);
+        return users.get(id);
+    }
+
+    @Override
+    public User deleteById(int id) {
+        if (!users.containsKey(id)) {
+            throw new ObjectNotFoundException("Пользователя с таким ид не существует.");
+        }
+        User user = users.get(id);
+        log.info("Пользователь с ид :" + id + " удалён.");
+        users.remove(id);
+        return user;
+    }
+
+    @Override
+    public Map<Integer, User> getUsersMap() {
+        return users;
     }
 
     private User userCreator(User user) {
@@ -74,7 +103,7 @@ public class InMemoryUserStorage implements UserStorage{
         }
     }
 
-    private void validateExistenceForPUT(User user) throws ValidationException {
+    private void validateExistenceForPUT(User user) {
         if (!users.containsKey(user.getId())) {
             log.info("Id пользователя '{}' ", user.getId());
             throw new ValidationException("Пользователь отсутствует!");
