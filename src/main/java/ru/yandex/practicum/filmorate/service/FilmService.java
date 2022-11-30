@@ -24,7 +24,8 @@ public class FilmService {
         if (!filmStorage.getFilms().containsKey(filmId)) {
             throw new ObjectNotFoundException("Фильма с таким ид не существует.");
         }
-        filmStorage.getFilmById(filmId).getLikes().add(userId);
+        Film film = filmStorage.getFilmById(filmId);
+        film.getLikes().add(userId);
         log.info("Лайк добавлен.");
         return filmStorage.getFilmById(filmId);
     }

@@ -17,4 +17,6 @@ public interface UserStorage {
     User deleteById(int id);
 
     Map<Integer, User> getUsersMap();
+
+    boolean isAdded(int id);
 }

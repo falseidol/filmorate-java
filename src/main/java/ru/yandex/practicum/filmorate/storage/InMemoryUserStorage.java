@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @Component
@@ -76,7 +77,12 @@ public class InMemoryUserStorage implements UserStorage {
         return users;
     }
 
-    private User userCreator(User user) {
+    @Override
+    public boolean isAdded(int id) {
+        return users.containsKey(id);
+    }
+
+    public User userCreator(User user) {
         log.info("Создаем объект");
         User userFromBuilder = User.builder()
                 .id(user.getId())
@@ -84,6 +90,7 @@ public class InMemoryUserStorage implements UserStorage {
                 .login(user.getLogin())
                 .name(user.getName())
                 .birthday(user.getBirthday())
+                .friends(new HashSet<>())
                 .build();
         log.info("Объект User создан, имя : '{}'", userFromBuilder.getName());
         return userFromBuilder;
@@ -106,7 +113,7 @@ public class InMemoryUserStorage implements UserStorage {
     private void validateExistenceForPUT(User user) {
         if (!users.containsKey(user.getId())) {
             log.info("Id пользователя '{}' ", user.getId());
-            throw new ValidationException("Пользователь отсутствует!");
+            throw new ObjectNotFoundException("Пользователь отсутствует!");
         }
     }
 }

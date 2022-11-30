@@ -11,7 +11,6 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -19,7 +18,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class Film {
 
-    private Set<Integer> likes = new HashSet<>();
+    private Set<Integer> likes;
+
     @PositiveOrZero
     private int id;
     @NonNull

@@ -30,11 +30,15 @@ public class UserService {
         if (userStorage.getById(firstId).getFriends().contains(secondId)) {
             throw new InternalException("Пользователи уже являются друзьями");
         }
-        userStorage.getById(firstId).getFriends().add(secondId);
-        userStorage.getById(secondId).getFriends().add(firstId);
+        User user1 = userStorage.getById(firstId);
+        User user2 = userStorage.getById(secondId);
+
+        user1.getFriends().add(secondId);
+        user2.getFriends().add(firstId);
         log.info("Пользователи " + userStorage.getById(firstId).getName() + " и " + userStorage.getById(secondId).getName() + " теперь друзья.");
         return Arrays.asList(userStorage.getById(firstId), userStorage.getById(secondId));
     }
+
 
     public List<User> removeFriend(int firstId, int secondId) {
         if (!userStorage.getUsersMap().containsKey(firstId) || !userStorage.getUsersMap().containsKey(secondId)) {
@@ -43,8 +47,11 @@ public class UserService {
         if (!userStorage.getById(firstId).getFriends().contains(secondId)) {
             throw new InternalException("Пользователи не являются друзьями.");
         }
-        userStorage.getById(firstId).getFriends().remove(secondId);
-        userStorage.getById(secondId).getFriends().remove(firstId);
+        User user1 = userStorage.getById(firstId);
+        User user2 = userStorage.getById(secondId);
+
+        user1.getFriends().remove(secondId);
+        user2.getFriends().remove(firstId);
         log.info("Пользователи " + userStorage.getById(firstId).getName() + " и " + userStorage.getById(secondId).getName() + " больше не дружочки пирожочки.");
         return Arrays.asList(userStorage.getById(firstId), userStorage.getById(secondId));
     }

@@ -8,10 +8,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
-@Slf4j
 @Component
+@Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final HashMap<Integer, Film> films = new HashMap<>();
@@ -45,6 +46,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .description(film.getDescription())
                 .releaseDate(film.getReleaseDate())
                 .duration(film.getDuration())
+                .likes(new HashSet<>())
                 .build();
         log.info("Объект Film создан '{}'", filmFromBuilder.getName());
         return filmFromBuilder;
