@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -18,8 +20,10 @@ public class FilmsControllerTest {
 
     private static Film film;
     private static Film film2;
+
+    private static Film film3;
     private static LocalDate time;
-    private static FilmService filmService;
+    private static FilmStorage filmStorage;
 
     @BeforeEach
     void init() {
@@ -31,14 +35,14 @@ public class FilmsControllerTest {
                 .releaseDate(LocalDate.of(2022, 3, 14))
                 .duration(20)
                 .build();
-        filmService = new FilmService();
+        filmStorage = new InMemoryFilmStorage();
     }
 
     @Test
     void shouldAddFilmToMap() {
         time = LocalDate.of(1900, 9, 1);
-        filmService.addFilm(film);
-        Assertions.assertEquals(1, filmService.getFilms().size());
+        filmStorage.addFilm(film);
+        Assertions.assertEquals(1, filmStorage.getFilms().size());
     }
 
 
@@ -52,19 +56,19 @@ public class FilmsControllerTest {
                 .releaseDate(time)
                 .duration(20)
                 .build();
-        filmService.addFilm(film);
-        filmService.updateFilm(film2);
-        assertEquals(1, filmService.getFilms().size());
+        filmStorage.addFilm(film);
+        filmStorage.updateFilm(film2);
+        assertEquals(1, filmStorage.getFilms().size());
     }
 
     @Test
     void validateExistenceForPOSTTest() {
-        filmService.addFilm(film);
-        assertThrows(ValidationException.class, () -> filmService.addFilm(film));
+        filmStorage.addFilm(film);
+        assertThrows(ValidationException.class, () -> filmStorage.addFilm(film));
     }
 
     @Test
     void validateExistenceForPUTTest() {
-        assertThrows(ValidationException.class, () -> filmService.updateFilm(film));
+        assertThrows(NullPointerException.class, () -> filmStorage.updateFilm(film3));
     }
 }

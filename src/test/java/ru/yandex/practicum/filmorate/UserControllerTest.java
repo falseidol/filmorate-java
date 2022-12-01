@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
@@ -19,11 +21,11 @@ public class UserControllerTest {
     private static LocalDate time;
     private static User user;
     private static User user2;
-    private static UserService userService;
+    private static UserStorage userStorage;
 
     @BeforeEach
     void init() {
-        userService = new UserService();
+        userStorage = new InMemoryUserStorage();
         time = LocalDate.of(2002, 8, 2);
         user = User.builder()
                 .id(1)
@@ -41,34 +43,35 @@ public class UserControllerTest {
                 .build();
     }
 
+
     @Test
     void shouldAddUserToMap() {
-        userService.createUser(user);
-        Assertions.assertEquals(1, userService.getUsers().size());
+        userStorage.createUser(user);
+        Assertions.assertEquals(1, userStorage.getUsersMap().size());
     }
 
     @Test
     void shouldCreateUserWithIdEquals1() {
-        User userFormTest = userService.createUser(user);
+        User userFormTest = userStorage.createUser(user);
         assertEquals(1, userFormTest.getId());
     }
 
     @Test
     void shouldCreateUserWithEmptyName() {
-        userService.createUser(user);
+        userStorage.createUser(user);
         assertEquals("test", user.getName());
     }
 
     @Test
     void shouldFailValidationId() {
-        userService.createUser(user);
-        assertThrows(ValidationException.class, () -> userService.createUser(user));
+        userStorage.createUser(user);
+        assertThrows(ValidationException.class, () -> userStorage.createUser(user));
     }
 
     @Test
     void shouldUpdateUserInMap() {
-        userService.createUser(user);
-        userService.updateUser(user2);
+        userStorage.createUser(user);
+        userStorage.updateUser(user2);
         Assertions.assertEquals("test2@", user2.getEmail());
         Assertions.assertEquals("test2", user2.getLogin());
         Assertions.assertEquals("test2", user2.getName());
@@ -83,18 +86,18 @@ public class UserControllerTest {
                 .login("testlogin")
                 .birthday(time)
                 .build();
-        userService.createUser(user);
+        userStorage.createUser(user);
         assertEquals("testlogin", user.getName());
     }
 
     @Test
     void validateExistenceForPOSTTest() {
-        userService.createUser(user);
-        assertThrows(ValidationException.class, () -> userService.createUser(user));
+        userStorage.createUser(user);
+        assertThrows(ValidationException.class, () -> userStorage.createUser(user));
     }
 
     @Test
     void validateExistenceForPUTTest() {
-        assertThrows(ValidationException.class, () -> userService.updateUser(user));
+        assertThrows(ObjectNotFoundException.class, () -> userStorage.updateUser(user));
     }
 }
