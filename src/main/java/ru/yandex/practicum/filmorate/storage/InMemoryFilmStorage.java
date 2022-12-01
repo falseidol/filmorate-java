@@ -22,7 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return ++id;
     }
 
-
+    @Override
     public Film addFilm(Film film) {
         log.info("Проверка наличия в списке");
         validateExistenceForPOST(film);
@@ -52,6 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return filmFromBuilder;
     }
 
+    @Override
     public Film updateFilm(Film film) {
         log.info("Проверка наличия в списке");
         validateExistenceForPUT(film);
@@ -86,15 +87,14 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films;
     }
 
-
-    public void validateExistenceForPOST(Film film) {
+    private void validateExistenceForPOST(Film film) {
         if (films.containsKey(film.getId())) {
             log.info("Id фильма '{}' ", film.getId());
             throw new ValidationException("Фильм с таким id уже существует!");
         }
     }
 
-    public void validateExistenceForPUT(Film film) {
+    private void validateExistenceForPUT(Film film) {
         if (!films.containsKey(film.getId())) {
             log.info("Id фильма '{}' ", film.getId());
             throw new ObjectNotFoundException("Фильм с таким id осутствует!");

@@ -77,12 +77,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users;
     }
 
-    @Override
-    public boolean isAdded(int id) {
-        return users.containsKey(id);
-    }
-
-    public User userCreator(User user) {
+    private User userCreator(User user) {
         log.info("Создаем объект");
         User userFromBuilder = User.builder()
                 .id(user.getId())
