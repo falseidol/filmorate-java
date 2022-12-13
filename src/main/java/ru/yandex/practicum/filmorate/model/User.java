@@ -10,15 +10,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class User {
 
-    private Set<Integer> friends;
     private int id;
     @NonNull
     @NotBlank

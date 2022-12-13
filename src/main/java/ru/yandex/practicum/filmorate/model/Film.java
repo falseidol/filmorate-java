@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
 import ru.yandex.practicum.filmorate.validation.BeginOfCinemaEra;
 
 import javax.validation.constraints.NotBlank;
@@ -11,14 +8,14 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
-@Data
-@Builder
 @AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
+@Builder(toBuilder = true)
 public class Film {
-
-    private Set<Integer> likes;
 
     @PositiveOrZero
     private int id;
@@ -34,4 +31,6 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
+    private Mpa mpa;
+    private List<Genre> genres;
 }
