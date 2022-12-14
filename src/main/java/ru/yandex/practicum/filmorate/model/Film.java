@@ -12,8 +12,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
+@Data
 @Builder(toBuilder = true)
 public class Film {
 

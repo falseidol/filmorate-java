@@ -21,7 +21,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmTest {
-
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
     private Film film = Film.builder()

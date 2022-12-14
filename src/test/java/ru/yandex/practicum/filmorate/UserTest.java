@@ -19,7 +19,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserTest {
     private final UserDbStorage userDbStorage;
-
     User user = User.builder()
             .id(1)
             .email("ABOBA@mail.mail")
@@ -36,6 +35,7 @@ public class UserTest {
 
     @Test
     void updateUser() {
+        userDbStorage.createUser(user);
         user.setName("drujokpirojok");
         user.setLogin("drujokpirojok");
         user.setEmail("updatedExample@mail.mail");
@@ -65,7 +65,7 @@ public class UserTest {
         assertThat(userDbStorage.getFriendsListById(friend.getId()).isEmpty());
         userDbStorage.addFriendship(friend.getId(), drujokpirojok.getId());
         Assertions.assertThat(userDbStorage.getFriendsListById(friend.getId()).size() == 2);
-        userDbStorage.removeFriendship(friend.getId(),drujokpirojok.getId());
+        userDbStorage.removeFriendship(friend.getId(), drujokpirojok.getId());
         Assertions.assertThat(userDbStorage.getFriendsListById(friend.getId()).size() == 0);
     }
 }

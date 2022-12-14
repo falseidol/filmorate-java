@@ -23,9 +23,7 @@ import java.util.Map;
 @Repository
 @Slf4j
 @Qualifier
-
 public class UserDbStorage implements UserStorage {
-
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -87,7 +85,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User deleteById(int id) {
-        final String deleteUser = "SELECT * FROM users WHERE id = ?";
+        final String deleteUser = "DELETE FROM users WHERE id = ?";
         User user = getById(id);
         jdbcTemplate.update(deleteUser, id);
         log.info("Пользователь с ид {} удален", id);
