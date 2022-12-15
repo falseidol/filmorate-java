@@ -1,83 +1,60 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.dao.user.UserStorage;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    private final HashMap<Integer, User> users = new HashMap<>();
-
-    private int Id = 0;
-
-    private int makeID() {
-        return ++Id;
+    private final UserStorage userStorage;
+    public List<Integer> addFriend(int firstId, int secondId) {
+        return userStorage.addFriendship(firstId, secondId);
     }
 
-    public Collection<User> getUsers() {
-        return users.values();
+    public List<Integer> removeFriend(int firstId, int secondId) {
+        return userStorage.removeFriendship(firstId, secondId);
     }
 
-
-    public User createUser(User user) {
-        log.info("Проверка наличия в списке");
-        validateExistenceForPOST(user);
-        validateName(user);
-        log.info("Присвоение id");
-        user.setId(makeID());
-        User userFromCreator = userCreator(user);
-        users.put(userFromCreator.getId(), userFromCreator);
-        log.info("Пользователь с именем " + userFromCreator.getName() + "создан");
-        return user;
+    public List<User> getUsersFriendListById(int firstId) {
+        return userStorage.getFriendsListById(firstId);
     }
 
-    public User updateUser(User user) {
-        log.info("Проверка наличия в списке");
-        validateExistenceForPUT(user);
-        validateName(user);
-        User userFromCreator = userCreator(user);
-        users.put(userFromCreator.getId(), userFromCreator);
-        log.info("Пользователь обновлён");
-        return user;
+    public List<User> getSharedFriendsList(int firstId, int secondId) {
+        return userStorage.getSharedFriendsList(firstId, secondId);
     }
 
-    private User userCreator(User user) {
-        log.info("Создаем объект");
-        User userFromBuilder = User.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .login(user.getLogin())
-                .name(user.getName())
-                .birthday(user.getBirthday())
-                .build();
-        log.info("Объект User создан, имя : '{}'", userFromBuilder.getName());
-        return userFromBuilder;
+    public Collection<User> findAll() {
+        return userStorage.findAll();
     }
 
-    private void validateName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Присваиваем поле login '{}' для поля name '{}' ", user.getLogin(), user.getName());
-            user.setName(user.getLogin());
-        }
+    public User create(User user) {
+        validate(user);
+        return userStorage.createUser(user);
     }
 
-    private void validateExistenceForPOST(User user) throws ValidationException {
-        if (users.containsKey(user.getId())) {
-            log.info("Id пользователя '{}' ", user.getId());
-            throw new ValidationException("Пользователь с таким id уже существует!");
-        }
+    public User update(User user) {
+        validate(user);
+        return userStorage.updateUser(user);
     }
 
-    private void validateExistenceForPUT(User user) throws ValidationException {
-        if (!users.containsKey(user.getId())) {
-            log.info("Id пользователя '{}' ", user.getId());
-            throw new ValidationException("Пользователь отсутствует!");
-        }
+    private void validate(User user) {
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
+    }
+
+    public User getById(int id) {
+        return userStorage.getById(id);
+    }
+
+    public User deleteById(int id) {
+        return userStorage.deleteById(id);
+
     }
 }
