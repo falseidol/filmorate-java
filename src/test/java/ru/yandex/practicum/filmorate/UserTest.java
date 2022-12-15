@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -19,13 +20,18 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserTest {
     private final UserDbStorage userDbStorage;
-    User user = User.builder()
-            .id(1)
-            .email("ABOBA@mail.mail")
-            .login("login")
-            .name("N")
-            .birthday(LocalDate.of(2000, 12, 22))
-            .build();
+    static User user;
+
+    @BeforeAll
+    public static void initBefore() {
+        user = User.builder()
+                .id(1)
+                .email("ABOBA@mail.mail")
+                .login("drujokpirojok")
+                .name("drujokpirojok")
+                .birthday(LocalDate.of(2000, 12, 22))
+                .build();
+    }
 
     @Test
     void createUserTest() {
@@ -38,12 +44,12 @@ public class UserTest {
         userDbStorage.createUser(user);
         user.setName("drujokpirojok");
         user.setLogin("drujokpirojok");
-        user.setEmail("updatedExample@mail.mail");
-        userDbStorage.updateUser(user);
+        user.setEmail("ABOBA@mail.mail");
+        userDbStorage.updateUser(userDbStorage.getById(user.getId()));
         AssertionsForClassTypes.assertThat(userDbStorage.getById(user.getId()))
                 .hasFieldOrPropertyWithValue("login", "drujokpirojok")
                 .hasFieldOrPropertyWithValue("name", "drujokpirojok")
-                .hasFieldOrPropertyWithValue("email", "updatedExample@mail.mail");
+                .hasFieldOrPropertyWithValue("email", "ABOBA@mail.mail");
     }
 
     @Test

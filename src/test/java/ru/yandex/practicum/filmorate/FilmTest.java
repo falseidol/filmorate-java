@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -23,20 +24,27 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class FilmTest {
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
-    private Film film = Film.builder()
-            .name("testFilm")
-            .description("desc")
-            .releaseDate(LocalDate.of(2020, 1, 1))
-            .duration(110)
-            .mpa(new Mpa(1, "G"))
-            .genres(null)
-            .build();
-    private User user = User.builder()
-            .email("pudge2005@mail.ru")
-            .login("login")
-            .name("ben")
-            .birthday(LocalDate.of(2000, 12, 22))
-            .build();
+
+    static Film film;
+    static User user;
+
+    @BeforeAll
+    public static void init() {
+        film = Film.builder()
+                .name("testFilm")
+                .description("desc")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(110)
+                .mpa(new Mpa(1, "G"))
+                .genres(null)
+                .build();
+        user = User.builder()
+                .email("pudge2005@mail.ru")
+                .login("login")
+                .name("ben")
+                .birthday(LocalDate.of(2000, 12, 22))
+                .build();
+    }
 
     @Test
     void addFilmTest() {
